@@ -1,0 +1,308 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+
+
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial;background:#000; }
+
+      form {  background:#000 ; padding: 3px; position: fixed; bottom: 0; width: 100%; border-radius: 6px;box-shadow: 0 6px 6px -6px rgba(0, 0, 0, .3);  }
+
+      form input { border: 10; padding: 10px; width: 80%; margin-right: .5%;}
+
+      button { width: 9%; background:#6A6; border: none; padding: 10px;border-radius: 6px;box-shadow: 0 6px 6px -6px rgba(0, 0, 0, .3); }
+
+      #Random{position:fixed;bottom:0;right:0;padding: 10px;}
+
+      #time{position:fixed; top:0;padding: 10px;width:200px;height:100px;color:blue;}
+
+      #messages { top:300px; margin: 30px;width: 740px; height: 495px; margin: auto; border-radius: 6px; border: 1px solid rgb(174, 182, 187);
+        background: #333 url('http://goo.gl/c6myN') center; display: block; overflow: hidden; box-shadow: 0 6px 6px -6px rgba(0, 0, 0, .3);  }
+
+      #messages li: nth-child(odd) { background: #6A6; }
+
+      #weather {width: 100px; margin:auto; text-align: center;text-transform: uppercase;}
+
+      i {
+        color: #fff;
+        font-family: weather;
+        font-size: 150px;
+        font-weight: normal;
+        font-style: normal;
+        line-height: 1.0;
+      }
+
+
+      .icon-0:before { content: ":"; }
+      .icon-1:before { content: "p"; }
+      .icon-2:before { content: "S"; }
+      .icon-3:before { content: "Q"; }
+      .icon-4:before { content: "S"; }
+      .icon-5:before { content: "W"; }
+      .icon-6:before { content: "W"; }
+      .icon-7:before { content: "W"; }
+      .icon-8:before { content: "W"; }
+      .icon-9:before { content: "I"; }
+      .icon-10:before { content: "W"; }
+      .icon-11:before { content: "I"; }
+      .icon-12:before { content: "I"; }
+      .icon-13:before { content: "I"; }
+      .icon-14:before { content: "I"; }
+      .icon-15:before { content: "W"; }
+      .icon-16:before { content: "I"; }
+      .icon-17:before { content: "W"; }
+      .icon-18:before { content: "U"; }
+      .icon-19:before { content: "Z"; }
+      .icon-20:before { content: "Z"; }
+      .icon-21:before { content: "Z"; }
+      .icon-22:before { content: "Z"; }
+      .icon-23:before { content: "Z"; }
+      .icon-24:before { content: "E"; }
+      .icon-25:before { content: "E"; }
+      .icon-26:before { content: "3"; }
+      .icon-27:before { content: "a"; }
+      .icon-28:before { content: "A"; }
+      .icon-29:before { content: "a"; }
+      .icon-30:before { content: "A"; }
+      .icon-31:before { content: "6"; }
+      .icon-32:before { content: "1"; }
+      .icon-33:before { content: "6"; }
+      .icon-34:before { content: "1"; }
+      .icon-35:before { content: "W"; }
+      .icon-36:before { content: "1"; }
+      .icon-37:before { content: "S"; }
+      .icon-38:before { content: "S"; }
+      .icon-39:before { content: "S"; }
+      .icon-40:before { content: "M"; }
+      .icon-41:before { content: "W"; }
+      .icon-42:before { content: "I"; }
+      .icon-43:before { content: "W"; }
+      .icon-44:before { content: "a"; }
+      .icon-45:before { content: "S"; }
+      .icon-46:before { content: "U"; }
+      .icon-47:before { content: "S"; }
+
+      #weather h2 {
+        margin: 0 0 8px;
+        position:relative;
+        color: #fff;
+        top:50px;
+        right:-300px;
+        font-size: 100px;
+        font-weight: 300;
+        text-align: center;
+        text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.15);
+      }
+
+      #weather ul {
+        margin: 0 10px;
+        padding: 0;
+      }
+
+
+      #weather li {
+        background: #fff;
+        background: rgba(255,255,255,0.90);
+        padding: 20px;
+        position:relative;
+        top:100px;
+        left:300px;
+        display: inline-block;
+        border-radius: 5px;
+      }
+
+      #weather .currently {
+        margin: 0 20px;
+      }
+      #weather .sunrise {
+        margin: 0 10px;
+      }
+      #weather .forecast {
+        margin: 10px 10px;
+        width:400px;
+        position:relative;
+        left:-450px;
+        top:-200px;
+       }
+
+    </style>
+
+  </head>
+
+
+  <body>
+    <ul id="messages"></ul>
+
+    <div id="time">
+    <ul>
+     <li><h1 id="hour">00 </h1></li>
+      <li> <h1 id="minute">00</h1></li>
+      <li id="input"><input id="ipt1" value="0"> minutes</input>
+      <input id="ipt" value="0"> seconds </input></li>
+      <li><button id="reset" onclick="Resetf()" > Reset</button></li>
+      <li><button id="start" style="none" onclick="Startf()" > Start</button></li>
+    </ul>
+  </div>
+
+
+    <div id="weather"></div>
+
+
+    <form action="">
+      <input id="m" autocomplete="off" />  <button>Send</button>
+    </form>
+
+    <button id="Random" onclick="myFunction()">Auto Send</button>
+
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <scrpt src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.simpleWeather/3.1.0/jquery.simpleWeather.min.js"></script>
+
+    <script>
+
+
+      var socket = io();
+      $('form').submit(function(){
+        socket.emit('chat message', $('#m').val());
+        $('#m').val('');
+        return false;
+      });
+      socket.on('chat message', function(msg){
+        $('#messages').append($('<li>').text(msg));
+      });
+    </script>
+
+
+
+    <script> //Sending good morning/night messages
+      function myFunction()
+      {
+
+                var random= Math.floor((Math.random() * 6) + 1);
+
+                var arr=["Good Morning Beautiful",
+                "Hello Sweety.",
+                "Good morning Honey”",
+                "Nighty Night",
+                "Jesus is with you ",
+                "This is so cool",
+                "I have no idea whats happening"];
+
+                //document.getElementById("Random").innerHTML = arr[random];
+
+                $('#messages').append(arr[random]);
+
+      }
+
+    var str=document.getElementById('Random').outerHTML;
+    document.getElementById('twitterlink').setAttribute("data-text",str)  ;
+
+      function Rand(min, max)
+        {
+          return Math.random() * (max - min) + min;
+        }
+
+
+    </script>
+
+    <script> //send reminders or wish birthdays when you usually forget
+    var minutes;
+    var myvar;
+    var hour;
+
+    function callTimer(){
+      var delay=1000;
+      document.getElementById("minute").innerHTML =minutes;
+      document.getElementById("hour").innerHTML =hour;
+
+    minutes--;
+      if(minutes===-1)
+      {hour--;
+       Resetf1()
+      }
+      if(hour===-1)
+        Stopf();
+    }
+    function Startf()
+    {
+
+    hour=document.getElementById("ipt1").value; minutes=document.getElementById("ipt").value;
+    if(minutes<=60)
+      {
+    clearInterval(myvar);
+    myvar=setInterval(function(){ callTimer()}, 1000);
+      }
+
+    }
+    function Startf1()
+    {
+    myvar=setInterval(function(){ callTimer()}, 1000);
+
+    }
+    function Resetf1(){
+    minutes=60;
+    clearInterval(myvar);
+    Startf1();
+    }
+    function Resetf(){
+    clearInterval(myvar);
+    Startf();
+    }
+    function Stopf(){
+    clearInterval(myvar);
+    }
+
+
+
+    </script>
+
+    <script>
+    // Docs at http://simpleweatherjs.com
+
+    /* Does your browser support geolocation? */
+        if ("geolocation" in navigator) {
+              $('.js-geolocation').show();
+            }
+            else
+            {
+              $('.js-geolocation').hide();
+            }
+
+      /* Where in the world are you? */
+      $(document).ready(function()
+      {
+        loadWeather(navigator.geolocation.getCurrentPosition(function(position) {
+          loadWeather(position.coords.latitude+','+position.coords.longitude); //load weather using your lat/lng coordinates
+        })); //@params location, woeid
+      });
+
+      function loadWeather(location, woeid) {
+        $.simpleWeather({
+          location: "Champaign",
+          woeid: woeid,
+          unit: 'c',
+          success: function(weather) {
+            html = '<h2><i class="icon-'+weather.code+'"></i> '+weather.temp+'&deg;'+weather.units.temp+'</h2>';
+            html += '<ul><li>'+weather.city+', '+weather.region+'</li>';
+            html += '<li class="currently">'+weather.currently+'</li>';
+            html += '<li>'+weather.alt.temp+'&deg;C</li>';
+            html += '<li class="sunrise">Sunrise: '+weather.sunrise+'</li></ul>';
+            for(i=0;i<1;i++){
+              html += '<ul class="forecaster"><li class="forecast"><img src='+weather.forecast[i].thumbnail+'>'+weather.forecast[i].day+":"+weather.forecast[i].high+'&deg;C</li></ul>'; }
+      $("#weather").html(html);
+
+        $('#messages').append('<ul class="forecaster"><li class="forecast"><img src='+weather.forecast[i].thumbnail+'>'+weather.forecast[i].day+":"+weather.forecast[i].high+'&deg;C</li></ul>');
+    },
+    error: function(error) {
+      $("#weather").html('<p>'+error+'</p>');
+    }
+  });
+}
+
+    </script>
+
+  </body>
+</html>
